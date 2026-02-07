@@ -1088,6 +1088,7 @@ st.markdown(f"""
 <div class="footer">
     <p>⚠️ Outil d'aide à la décision — Ne remplace pas le jugement clinique du médecin</p>
     <p>CardioPredict · LightGBM · MIMIC-IV v3.1 · 13,569 patients · 45 variables · AUC 0.92</p>
-    <p style="margin-top:0.5rem;">Thèse de doctorat — Prédiction de mortalité cardiovasculaire en USI</p>
+    <p style="margin-top:0.5rem;">projet de maitrise — Prédiction de mortalité cardiovasculaire en USI</p>
 </div>
+
 """, unsafe_allow_html=True)
