@@ -1,6 +1,6 @@
 """
 ================================================================================
-🏥 DASHBOARD PROFESSIONNEL - PRÉDICTION DE Niveau de risque de MORTALITÉ CARDIOVASCULAIRE EN USI
+🏥 DASHBOARD PROFESSIONNEL - PRÉDICTION DE MORTALITÉ CARDIOVASCULAIRE EN USI
 ================================================================================
 Version 3.0 - Design médical professionnel
 Modèle: LightGBM (AUC = 0.92) - MIMIC-IV v3.1
@@ -23,7 +23,7 @@ warnings.filterwarnings('ignore')
 # CONFIGURATION
 # ============================================================================
 st.set_page_config(
-    page_title="CardioPredict USI — Aide à la Décision Clinique et a la prédiction de niveau de risque de mortalité cardiovasculaire en USI",
+    page_title="CardioPredict USI — Aide à la Décision Clinique",
     page_icon="🫀",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -905,64 +905,76 @@ st.sidebar.markdown("### 🎯 Profil Clinique")
 sel = st.sidebar.selectbox("Profil:", list(PROFILES.keys()))
 p = PROFILES[sel]
 st.sidebar.caption(f"📝 {p['desc']}")
+
+# Track profile changes to reset values
+if 'prev_profile' not in st.session_state:
+    st.session_state.prev_profile = sel
+if st.session_state.prev_profile != sel:
+    # Profile changed - clear all keys to force reset
+    keys_to_clear = [k for k in st.session_state.keys() if k.startswith('inp_')]
+    for k in keys_to_clear:
+        del st.session_state[k]
+    st.session_state.prev_profile = sel
+    st.rerun()
+
 st.sidebar.markdown("---")
 
 st.sidebar.markdown("### 👤 Démographie")
-gender = st.sidebar.selectbox("Sexe", ["Homme", "Femme"], index=0 if p['gender']==1 else 1)
-age = st.sidebar.slider("Âge", 18, 100, p['age'])
-weight = st.sidebar.slider("Poids (kg)", 30, 200, p['weight'])
+gender = st.sidebar.selectbox("Sexe", ["Homme", "Femme"], index=0 if p['gender']==1 else 1, key='inp_gender')
+age = st.sidebar.slider("Âge", 18, 100, p['age'], key='inp_age')
+weight = st.sidebar.slider("Poids (kg)", 30, 200, p['weight'], key='inp_weight')
 
 st.sidebar.markdown("### ❤️ Diagnostics")
-mi = st.sidebar.checkbox("Infarctus", value=bool(p['myocardial_infarction']))
-hf = st.sidebar.checkbox("Insuffisance cardiaque", value=bool(p['heart_failure']))
-arr = st.sidebar.checkbox("Arythmie", value=bool(p['arrhythmia']))
-vd = st.sidebar.checkbox("Valvulopathie", value=bool(p['valvular_disease']))
-cad = st.sidebar.checkbox("Coronaropathie", value=bool(p['coronary_artery_disease']))
-diag_arr = st.sidebar.checkbox("Diag: Arythmie", value=bool(p['diag_Arrhythmia']))
-diag_hf = st.sidebar.checkbox("Diag: IC", value=bool(p['diag_Heart_Failure']))
-diag_mi = st.sidebar.checkbox("Diag: IDM", value=bool(p['diag_Myocardial_Infarction']))
+mi = st.sidebar.checkbox("Infarctus", value=bool(p['myocardial_infarction']), key='inp_mi')
+hf = st.sidebar.checkbox("Insuffisance cardiaque", value=bool(p['heart_failure']), key='inp_hf')
+arr = st.sidebar.checkbox("Arythmie", value=bool(p['arrhythmia']), key='inp_arr')
+vd = st.sidebar.checkbox("Valvulopathie", value=bool(p['valvular_disease']), key='inp_vd')
+cad = st.sidebar.checkbox("Coronaropathie", value=bool(p['coronary_artery_disease']), key='inp_cad')
+diag_arr = st.sidebar.checkbox("Diag: Arythmie", value=bool(p['diag_Arrhythmia']), key='inp_darr')
+diag_hf = st.sidebar.checkbox("Diag: IC", value=bool(p['diag_Heart_Failure']), key='inp_dhf')
+diag_mi = st.sidebar.checkbox("Diag: IDM", value=bool(p['diag_Myocardial_Infarction']), key='inp_dmi')
 
 st.sidebar.markdown("### 🩸 Biomarqueurs")
-trop = st.sidebar.number_input("Troponine T", 0.0, 50.0, float(p['troponin_t']), 0.01)
-ckmb = st.sidebar.number_input("CK-MB", 0.0, 500.0, float(p['ck_mb']), 1.0)
-lactate_max = st.sidebar.number_input("Lactate Max", 0.0, 30.0, float(p['lactate_max']), 0.1)
-lactate_min = st.sidebar.number_input("Lactate Min", 0.0, 30.0, float(p['lactate_min']), 0.1)
-creat_max = st.sidebar.number_input("Créatinine Max", 0.0, 20.0, float(p['creatinine_max']), 0.1)
-creat_min = st.sidebar.number_input("Créatinine Min", 0.0, 20.0, float(p['creatinine_min']), 0.1)
-bun_max = st.sidebar.number_input("BUN Max", 0.0, 200.0, float(p['bun_max']), 1.0)
-bun_min = st.sidebar.number_input("BUN Min", 0.0, 200.0, float(p['bun_min']), 1.0)
+trop = st.sidebar.number_input("Troponine T (ng/mL)", 0.0, 50.0, float(p['troponin_t']), 0.01, key='inp_trop')
+ckmb = st.sidebar.number_input("CK-MB (U/L)", 0.0, 500.0, float(p['ck_mb']), 1.0, key='inp_ckmb')
+lactate_max = st.sidebar.number_input("Lactate Max (mmol/L)", 0.0, 30.0, float(p['lactate_max']), 0.1, key='inp_lacmax')
+lactate_min = st.sidebar.number_input("Lactate Min (mmol/L)", 0.0, 30.0, float(p['lactate_min']), 0.1, key='inp_lacmin')
+creat_max = st.sidebar.number_input("Créatinine Max (mg/dL)", 0.0, 20.0, float(p['creatinine_max']), 0.1, key='inp_crmax')
+creat_min = st.sidebar.number_input("Créatinine Min (mg/dL)", 0.0, 20.0, float(p['creatinine_min']), 0.1, key='inp_crmin')
+bun_max = st.sidebar.number_input("BUN Max (mg/dL)", 0.0, 200.0, float(p['bun_max']), 1.0, key='inp_bunmax')
+bun_min = st.sidebar.number_input("BUN Min (mg/dL)", 0.0, 200.0, float(p['bun_min']), 1.0, key='inp_bunmin')
 
 st.sidebar.markdown("### 💉 Hémodynamique")
-sbp_min = st.sidebar.number_input("SBP Min", 30, 250, int(p['sbp_min']))
-sbp_max = st.sidebar.number_input("SBP Max", 30, 300, int(p['sbp_max']))
-dbp_min = st.sidebar.number_input("DBP Min", 20, 150, int(p['dbp_min']))
-dbp_max = st.sidebar.number_input("DBP Max", 20, 200, int(p['dbp_max']))
-map_min = st.sidebar.number_input("MAP Min", 20, 150, int(p['map_min']))
-map_max = st.sidebar.number_input("MAP Max", 20, 200, int(p['map_max']))
-hr_min = st.sidebar.number_input("FC Min", 20, 200, int(p['hr_min']))
-hr_max = st.sidebar.number_input("FC Max", 20, 250, int(p['hr_max']))
+sbp_min = st.sidebar.number_input("SBP Min (mmHg)", 30, 250, int(p['sbp_min']), key='inp_sbpmin')
+sbp_max = st.sidebar.number_input("SBP Max (mmHg)", 30, 300, int(p['sbp_max']), key='inp_sbpmax')
+dbp_min = st.sidebar.number_input("DBP Min (mmHg)", 20, 150, int(p['dbp_min']), key='inp_dbpmin')
+dbp_max = st.sidebar.number_input("DBP Max (mmHg)", 20, 200, int(p['dbp_max']), key='inp_dbpmax')
+map_min = st.sidebar.number_input("MAP Min (mmHg)", 20, 150, int(p['map_min']), key='inp_mapmin')
+map_max = st.sidebar.number_input("MAP Max (mmHg)", 20, 200, int(p['map_max']), key='inp_mapmax')
+hr_min = st.sidebar.number_input("FC Min (bpm)", 20, 200, int(p['hr_min']), key='inp_hrmin')
+hr_max = st.sidebar.number_input("FC Max (bpm)", 20, 250, int(p['hr_max']), key='inp_hrmax')
 
 st.sidebar.markdown("### 🫁 Respiratoire")
-resp_min = st.sidebar.number_input("FR Min", 5, 50, int(p['resp_rate_min']))
-resp_max = st.sidebar.number_input("FR Max", 5, 60, int(p['resp_rate_max']))
-spo2_min = st.sidebar.number_input("SpO2 Min", 50, 100, int(p['spo2_min']))
-spo2_max = st.sidebar.number_input("SpO2 Max", 50, 100, int(p['spo2_max']))
-temp_min = st.sidebar.number_input("Temp Min", 32.0, 42.0, float(p['temperature_min']), 0.1)
-temp_max = st.sidebar.number_input("Temp Max", 32.0, 42.0, float(p['temperature_max']), 0.1)
-gluc_min = st.sidebar.number_input("Glucose Min", 20, 500, int(p['glucose_min']))
-gluc_max = st.sidebar.number_input("Glucose Max", 20, 800, int(p['glucose_max']))
+resp_min = st.sidebar.number_input("FR Min (/min)", 5, 50, int(p['resp_rate_min']), key='inp_rrmin')
+resp_max = st.sidebar.number_input("FR Max (/min)", 5, 60, int(p['resp_rate_max']), key='inp_rrmax')
+spo2_min = st.sidebar.number_input("SpO2 Min (%)", 50, 100, int(p['spo2_min']), key='inp_spo2min')
+spo2_max = st.sidebar.number_input("SpO2 Max (%)", 50, 100, int(p['spo2_max']), key='inp_spo2max')
+temp_min = st.sidebar.number_input("Temp Min (°C)", 32.0, 42.0, float(p['temperature_min']), 0.1, key='inp_tmpmin')
+temp_max = st.sidebar.number_input("Temp Max (°C)", 32.0, 42.0, float(p['temperature_max']), 0.1, key='inp_tmpmax')
+gluc_min = st.sidebar.number_input("Glucose Min (mg/dL)", 20, 500, int(p['glucose_min']), key='inp_glumin')
+gluc_max = st.sidebar.number_input("Glucose Max (mg/dL)", 20, 800, int(p['glucose_max']), key='inp_glumax')
 
-st.sidebar.markdown("### 💊 Support")
-norepi = st.sidebar.checkbox("Norépinéphrine", value=bool(p['norepinephrine']))
-epi = st.sidebar.checkbox("Épinéphrine", value=bool(p['epinephrine']))
-dopa = st.sidebar.checkbox("Dopamine", value=bool(p['dopamine']))
-dobu = st.sidebar.checkbox("Dobutamine", value=bool(p['dobutamine']))
-vaso_count = st.sidebar.number_input("Nb vasopresseurs", 0, 5, int(p['vasopressor_count']))
-mech_vent = st.sidebar.checkbox("Ventilation mécanique", value=bool(p['mechanical_ventilation']))
-trop_m = st.sidebar.checkbox("Troponine mesurée", value=True)
-ckmb_m = st.sidebar.checkbox("CK-MB mesurée", value=True)
-lm = st.sidebar.checkbox("Lactate max mesuré", value=True)
-ln = st.sidebar.checkbox("Lactate min mesuré", value=True)
+st.sidebar.markdown("### 💊 Support Thérapeutique")
+norepi = st.sidebar.checkbox("Norépinéphrine", value=bool(p['norepinephrine']), key='inp_norepi')
+epi = st.sidebar.checkbox("Épinéphrine", value=bool(p['epinephrine']), key='inp_epi')
+dopa = st.sidebar.checkbox("Dopamine", value=bool(p['dopamine']), key='inp_dopa')
+dobu = st.sidebar.checkbox("Dobutamine", value=bool(p['dobutamine']), key='inp_dobu')
+vaso_count = st.sidebar.number_input("Nb vasopresseurs", 0, 5, int(p['vasopressor_count']), key='inp_vaso')
+mech_vent = st.sidebar.checkbox("Ventilation mécanique", value=bool(p['mechanical_ventilation']), key='inp_vent')
+trop_m = st.sidebar.checkbox("Troponine mesurée", value=True, key='inp_tropm')
+ckmb_m = st.sidebar.checkbox("CK-MB mesurée", value=True, key='inp_ckmbm')
+lm = st.sidebar.checkbox("Lactate max mesuré", value=True, key='inp_lmm')
+ln = st.sidebar.checkbox("Lactate min mesuré", value=True, key='inp_lnm')
 
 # ============================================================================
 # PATIENT + PRÉDICTION
@@ -1003,7 +1015,7 @@ alerts = get_alerts(dat)
 st.markdown(f"""
 <div class="hero-banner">
     <div class="hero-title">CardioPredict</div>
-    <div class="hero-subtitle">Système d'Aide à la Décision Clinique — Unité de Soins Intensifs Cardiovasculaire</div>
+    <div class="hero-subtitle">Outil d'Aide à la Décision et Prédiction du Niveau de Risque de Mortalité — Unité de Soins Intensifs Cardiovasculaire</div>
     <div style="margin-top:0.8rem;">
         <span class="risk-badge {rcl}">{sel}</span>
         <span style="color:rgba(255,255,255,0.3); margin:0 0.5rem;">|</span>
@@ -1120,8 +1132,8 @@ st.caption("Ouvrez le HTML → Ctrl+P → Enregistrer en PDF")
 # Footer
 st.markdown(f"""
 <div class="footer">
-    <p>⚠️ Outil d'aide à la décision et prediction le niveau de risque de mortalité — Ne remplace pas le jugement clinique du médecin</p>
+    <p>⚠️ Outil d'aide à la décision et prédiction du niveau de risque de mortalité — Ne remplace pas le jugement clinique du médecin</p>
     <p>CardioPredict · LightGBM · MIMIC-IV v3.1 · 13,569 patients · 45 variables · AUC 0.92</p>
-    <p style="margin-top:0.5rem;">projet de maitrise — Prédiction de niveau de risque de mortalité cardiovasculaire en USI</p>
+    <p style="margin-top:0.5rem;">Thèse de doctorat — Prédiction de mortalité cardiovasculaire en USI</p>
 </div>
 """, unsafe_allow_html=True)
