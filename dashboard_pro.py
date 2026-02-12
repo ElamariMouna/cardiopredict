@@ -1,6 +1,6 @@
 """
 ================================================================================
-🏥 DASHBOARD PROFESSIONNEL - PRÉDICTION DE MORTALITÉ CARDIOVASCULAIRE EN USI
+🏥 DASHBOARD PROFESSIONNEL - PRÉDICTION DE Niveau de risque de MORTALITÉ CARDIOVASCULAIRE EN USI
 ================================================================================
 Version 3.0 - Design médical professionnel
 Modèle: LightGBM (AUC = 0.92) - MIMIC-IV v3.1
@@ -23,7 +23,7 @@ warnings.filterwarnings('ignore')
 # CONFIGURATION
 # ============================================================================
 st.set_page_config(
-    page_title="CardioPredict USI — Aide à la Décision Clinique",
+    page_title="CardioPredict USI — Aide à la Décision Clinique et a la prédiction de niveau de risque de mortalité cardiovasculaire en USI",
     page_icon="🫀",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -67,16 +67,50 @@ st.markdown("""
     /* Sidebar inputs styling */
     [data-testid="stSidebar"] input,
     [data-testid="stSidebar"] select {
-        background: rgba(0,180,180,0.06) !important;
-        border: 1px solid rgba(0,180,180,0.15) !important;
+        background: #0d2a40 !important;
+        border: 1px solid rgba(0,180,180,0.25) !important;
         border-radius: 8px !important;
-        color: #ffffff !important;
+        color: #00ffcc !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-size: 0.95rem !important;
+        font-weight: 500 !important;
     }
     
     [data-testid="stSidebar"] input:focus,
     [data-testid="stSidebar"] select:focus {
-        border-color: rgba(0,180,180,0.4) !important;
-        box-shadow: 0 0 8px rgba(0,180,180,0.15) !important;
+        border-color: #00b4b4 !important;
+        box-shadow: 0 0 10px rgba(0,180,180,0.25) !important;
+        background: #0f3050 !important;
+    }
+    
+    /* Number input value text */
+    [data-testid="stSidebar"] [data-testid="stNumberInput"] input {
+        color: #00ffcc !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Selectbox text */
+    [data-testid="stSidebar"] [data-baseweb="select"] span,
+    [data-testid="stSidebar"] [data-baseweb="select"] div {
+        color: #00ffcc !important;
+        font-family: 'Source Sans 3', sans-serif !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Slider value */
+    [data-testid="stSidebar"] [data-testid="stThumbValue"],
+    [data-testid="stSidebar"] .stSlider [data-testid="stTickBarMin"],
+    [data-testid="stSidebar"] .stSlider [data-testid="stTickBarMax"] {
+        color: #00ffcc !important;
+        font-family: 'JetBrains Mono', monospace !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Checkbox text */
+    [data-testid="stSidebar"] .stCheckbox span {
+        color: #c8dce8 !important;
+        font-weight: 400 !important;
     }
     
     /* Sidebar checkboxes */
@@ -1086,9 +1120,8 @@ st.caption("Ouvrez le HTML → Ctrl+P → Enregistrer en PDF")
 # Footer
 st.markdown(f"""
 <div class="footer">
-    <p>⚠️ Outil d'aide à la décision — Ne remplace pas le jugement clinique du médecin</p>
+    <p>⚠️ Outil d'aide à la décision et prediction le niveau de risque de mortalité — Ne remplace pas le jugement clinique du médecin</p>
     <p>CardioPredict · LightGBM · MIMIC-IV v3.1 · 13,569 patients · 45 variables · AUC 0.92</p>
-    <p style="margin-top:0.5rem;">projet de maitrise — Prédiction de mortalité cardiovasculaire en USI</p>
+    <p style="margin-top:0.5rem;">projet de maitrise — Prédiction de niveau de risque de mortalité cardiovasculaire en USI</p>
 </div>
-
 """, unsafe_allow_html=True)
